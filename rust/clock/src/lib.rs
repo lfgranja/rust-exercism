@@ -49,7 +49,6 @@ impl fmt::Display for Clock {
 
 impl From<Clock> for String {
     fn from(clock: Clock) -> Self {
-        // Como você já implementou o Display, pode simplesmente reaproveitá-lo aqui:
         clock.to_string()
     }
 }
