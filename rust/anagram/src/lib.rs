@@ -29,6 +29,7 @@ use std::collections::HashSet;
 /// let anagrams = anagrams_for("stone", &["stone", "tones", "banana", "tons", "notes", "Seton"]);
 /// assert_eq!(anagrams, HashSet::from(["tones", "notes", "Seton"]));
 /// ```
+///
 pub fn anagrams_for<'a>(word: &str, possible_anagrams: &[&'a str]) -> HashSet<&'a str> {
     let word_lowercase = word.to_lowercase();
     let mut sorted_chars: Vec<char> = word_lowercase.chars().collect();
