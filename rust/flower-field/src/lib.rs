@@ -33,6 +33,8 @@ pub fn annotate(garden: &[&str]) -> Vec<String> {
         .iter()
         .enumerate()
         .map(|(row_index, row_content)| {
+            // We use .as_bytes() for performance since the input is guaranteed to be ASCII.
+            // This avoids the overhead of UTF-8 character decoding.
             row_content
                 .as_bytes()
                 .iter()
@@ -40,18 +42,27 @@ pub fn annotate(garden: &[&str]) -> Vec<String> {
                 .map(|(column_index, &cell_content)| match cell_content {
                     b'*' => '*',
                     _ => {
+                        // Generate a 3x3 window around the current cell.
+                        // .saturating_sub(1) prevents underflow if index is 0.
+                        // row_index + 1 might go out of bounds, but garden.get() handles this safely.
                         match (row_index.saturating_sub(1)..=row_index + 1)
                             .flat_map(|adjacent_row| {
                                 (column_index.saturating_sub(1)..=column_index + 1).filter_map(
                                     move |adjacent_column| {
+                                        // garden.get() returns None if row is out of bounds.
+                                        // .as_bytes().get() returns None if column is out of bounds.
+                                        // The '?' operator (via filter_map) skips these None values.
                                         garden.get(adjacent_row)?.as_bytes().get(adjacent_column)
                                     },
                                 )
                             })
+                            // Count only the bytes that represent a flower ('*').
                             .filter(|&adjacent_byte| *adjacent_byte == b'*')
                             .count()
                         {
+                            // Per requirements: no adjacent flowers means an empty space.
                             0 => ' ',
+                            // Convert the numeric count (0-8) to its ASCII character equivalent ('1'-'8').
                             flower_count => (b'0' + flower_count as u8) as char,
                         }
                     }
