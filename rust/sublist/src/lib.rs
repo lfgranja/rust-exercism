@@ -1,4 +1,5 @@
 /*
+ * sublist/src/lib.rs
  *
 Instructions
  Given any two lists A and B, determine if:
@@ -23,6 +24,8 @@ Instructions
  If A = [1, 2, 3] and B = [1, 3, 2], then A and B are unequal
  */
 
+use std::cmp::Ordering;
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum Comparison {
     Equal,
@@ -31,8 +34,20 @@ pub enum Comparison {
     Unequal,
 }
 
-pub fn sublist(first_list: &[i32], second_list: &[i32]) -> Comparison {
-    todo!(
-        "Determine if the {first_list:?} is equal to, sublist of, superlist of or unequal to {second_list:?}."
-    );
+pub fn sublist<T: PartialEq>(first_list: &[T], second_list: &[T]) -> Comparison {
+    match first_list.len().cmp(&second_list.len()) {
+        Ordering::Equal if first_list == second_list => Comparison::Equal,
+        Ordering::Greater if contains(first_list, second_list) => Comparison::Superlist,
+        Ordering::Less if contains(second_list, first_list) => Comparison::Sublist,
+        _ => Comparison::Unequal,
+    }
+}
+
+// Transformado em função privada (sem 'pub')
+fn contains<T: PartialEq>(superlist: &[T], sublist: &[T]) -> bool {
+    // Avaliação de curto-circuito substitui o `if`
+    sublist.is_empty()
+        || superlist
+            .windows(sublist.len())
+            .any(|window| window == sublist)
 }
