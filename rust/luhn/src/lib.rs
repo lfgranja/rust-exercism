@@ -3,24 +3,14 @@
  */
 
 pub fn is_valid(code: &str) -> bool {
-    if code.chars().filter(|character| *character != ' ').count() <= 1 {
-        return false;
-    }
-
     code.chars()
-        .filter(|character| *character != ' ')
+        .filter(|character| !character.is_ascii_whitespace())
         .rev()
         .try_fold((0, 0), |(count, sum), character| {
             character.to_digit(10).map(|number| {
-                if count % 2 == 1 {
-                    if number * 2 >= 10 {
-                        (count + 1, sum + number * 2 - 9)
-                    } else {
-                        (count + 1, sum + number * 2)
-                    }
-                } else {
-                    (count + 1, sum + number)
-                }
+                let doubled = if count % 2 == 1 { number * 2 } else { number };
+                let adjusted = if doubled > 9 { doubled - 9 } else { doubled };
+                (count + 1, sum + adjusted)
             })
         })
         .is_some_and(|(count, sum)| count > 1 && sum % 10 == 0)
